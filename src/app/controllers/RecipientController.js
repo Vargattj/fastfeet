@@ -1,5 +1,6 @@
 import * as Yup from "yup";
 import Recipient from "../models/Recipient";
+import User from "../models/User";
 
 class RecipientController {
   async store(req, res) {
@@ -14,6 +15,16 @@ class RecipientController {
     });
     if (!(await schema.isValid(req.body))) {
       return res.status(400).json({ error: "Validation fails" });
+    }
+
+    const verifyProvider = await User.findOne({
+      where: { id: userId, provider: true },
+    });
+
+    if (!verifyProvider) {
+      return res
+        .status(401)
+        .json({ error: "Only providers can create recipients" });
     }
 
     const {
@@ -41,6 +52,14 @@ class RecipientController {
     });
     if (!(await schema.isValid(req.body))) {
       return res.status(400).json({ error: "Validation fails" });
+    }
+
+    const verifyProvider = await User.findByPk(req.userId);
+
+    if (!verifyProvider.provider) {
+      return res
+        .status(401)
+        .json({ error: "Only providers can update a recipient" });
     }
 
     const { id } = req.params;
