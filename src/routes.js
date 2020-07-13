@@ -10,6 +10,8 @@ import DeliveryController from "./app/controllers/DeliveryController";
 import FileController from "./app/controllers/FileController"
 
 import multerConfig from "./config/multer";
+import SignatureController from "./app/controllers/SignatureController";
+import OrderController from "./app/controllers/OrderController";
 
 
 const routes = Router();
@@ -28,6 +30,9 @@ routes.get("/deliveries", DeliveryController.index);
 routes.put("/deliveries/:id", DeliveryController.update);
 routes.delete("/deliveries/:id", DeliveryController.delete);
 
+routes.post("/orders", OrderController.store);
+
 routes.post("/files", upload.single("file"), FileController.store);
+routes.post("/signatures", upload.single("signature"), SignatureController.store);
 
 export default routes;
