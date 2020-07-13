@@ -3,13 +3,16 @@ import Order from "../models/Order";
 import Recipient from "../models/Recipient";
 import Delivery from "../models/Delivery";
 
+import Mail from "../../lib/Mail";
+
 class OrderController {
   async store(req, res) {
     const schema = Yup.object().shape({
       recipient_id: Yup.number().required(),
       deliveryman_id: Yup.number().required(),
-      password: Yup.string().required().min(6),
+      product: Yup.string().required(),
     });
+
     if (!(await schema.isValid(req.body))) {
       return res.status(400).json({ error: "Validation fails" });
     }
@@ -26,6 +29,15 @@ class OrderController {
     }
 
     const order = await Order.create(req.body);
+    await Mail.sendMail({
+      to: `${delivery.name} <${delivery.email}>`,
+      subject: "Nova entrega registrada",
+      template: "newDelivery",
+      context: {
+        deliveryman: delivery.name,
+        recipient: recipient.street,
+      },
+    });
     res.json(order);
   }
 }
